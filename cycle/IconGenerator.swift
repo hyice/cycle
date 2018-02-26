@@ -11,29 +11,27 @@ import Cocoa
 struct IconGenerator {
     
     static func statusBarIcon(withProgress progress: Float) -> NSImage {
-        let thickness = NSStatusBar.system().thickness
-        let size = NSSize.init(width: thickness, height: thickness)
-        let image = NSImage.init(size: size)
+        let thickness = NSStatusBar.system.thickness
+        let size = NSSize(width: thickness, height: thickness)
+        let image = NSImage(size: size)
 
         image.lockFocus()
 
         // backgroundPath
-        drawCyclePath(progress: 330.0 / 360, color: NSColor.lightGray)
+        drawCyclePath(progress: 330.0 / 360, color: .lightGray)
 
         // progressPath
-        drawCyclePath(progress: progress, color: NSColor.black)
+        drawCyclePath(progress: progress, color: .black)
 
-        if progress != 0 {
-            drawCenterPoint(color: NSColor.lightGray)
-        }
+        drawCenterPoint(color: .lightGray)
 
         image.unlockFocus()
         
-        return image;
+        return image
     }
 
     private static func drawCyclePath(progress: Float, color: NSColor) {
-        let thickness = NSStatusBar.system().thickness
+        let thickness = NSStatusBar.system.thickness
         let radius = thickness * 0.618 / 2.0
         let center = NSMakePoint(thickness/2.0, thickness/2.0)
 
@@ -51,7 +49,7 @@ struct IconGenerator {
     }
 
     private static func drawCenterPoint(color: NSColor) {
-        let thickness = NSStatusBar.system().thickness
+        let thickness = NSStatusBar.system.thickness
         let center = NSMakePoint(thickness/2.0, thickness/2.0)
 
         let path = NSBezierPath()

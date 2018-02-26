@@ -14,12 +14,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Property -
     @IBOutlet weak var window: NSWindow!
 
-    let barItemManager = BarItemManager.init()
+    let barItemManager = CycleManager()
    
     // MARK: - Delegate -
     // MARK: NSApplicationDelegate
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        barItemManager.setup()
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {

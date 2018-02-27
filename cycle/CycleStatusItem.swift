@@ -14,7 +14,7 @@ extension CycleStatusItem {
      * Convenience methods for updating status item appearance.
      */
     func update(totalSeconds total: Int, elapsedSeconds elapsed: Int) {
-        let progress = total == 0 || elapsed == total ? 0 : Float(elapsed) / Float(total)
+        let progress = total == 0 || elapsed == total ? 0 : Double(elapsed) / Double(total)
         
         let openEyes = displayTimer || elapsed % 2 == 0
         

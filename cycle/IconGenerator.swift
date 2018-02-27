@@ -10,18 +10,20 @@ import Cocoa
 
 struct IconGenerator {
     
-    static func statusBarIcon(withProgress progress: Float, eyesOpened: Bool = true) -> NSImage {
+    static func statusBarIcon(withProgress progress: Double, eyesOpened: Bool = true) -> NSImage {
         let thickness = NSStatusBar.system.thickness
         let size = NSSize(width: thickness, height: thickness)
         let image = NSImage(size: size)
+        
+        let totalProgress = 330.0 / 360
 
         image.lockFocus()
 
         // backgroundPath
-        drawCyclePath(progress: 330.0 / 360, color: .lightGray)
+        drawCyclePath(progress: totalProgress, color: .lightGray)
 
         // progressPath
-        drawCyclePath(progress: progress, color: .black)
+        drawCyclePath(progress: progress * totalProgress, color: .black)
 
         if eyesOpened {
             drawCenterPoint(color: .lightGray)
@@ -32,7 +34,7 @@ struct IconGenerator {
         return image
     }
 
-    private static func drawCyclePath(progress: Float, color: NSColor) {
+    private static func drawCyclePath(progress: Double, color: NSColor) {
         let thickness = NSStatusBar.system.thickness
         let radius = thickness * 0.618 / 2.0
         let center = NSMakePoint(thickness/2.0, thickness/2.0)

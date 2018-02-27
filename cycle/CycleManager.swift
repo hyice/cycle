@@ -14,25 +14,51 @@ class CycleManager {
         case Stopped
         case Cycling(totalSeconds: Int, elapsedSeconds: Int)
         case Paused(totalSeconds: Int, elapsedSeconds: Int)
+        
+        func progress() -> (elapsedSeconds: Int, totalSeconds: Int) {
+            switch self {
+            case .Stopped:
+                return (0, 0)
+            case .Cycling(let totalSeconds, let elapsedSeconds), .Paused(let totalSeconds, let elapsedSeconds):
+                return (elapsedSeconds, totalSeconds)
+            }
+        }
+        
+        mutating func restart(totalSeconds total: Int) {
+            self = .Cycling(totalSeconds: total, elapsedSeconds: 0)
+        }
+        
+        mutating func stop() {
+            self = .Stopped
+        }
+        
+        mutating func pause() {
+            if case let .Cycling(total, elapsed) = self {
+                self = .Paused(totalSeconds: total, elapsedSeconds: elapsed)
+            }
+        }
+        
+        mutating func resume() {
+            if case let .Paused(total, elapsed) = self {
+                self = .Cycling(totalSeconds: total, elapsedSeconds: elapsed)
+            }
+        }
+        
+        mutating func cyclingTo(seconds elapsed: Int) {
+            if case let .Cycling(total, _) = self {
+                self = .Cycling(totalSeconds: total, elapsedSeconds: elapsed)
+            }
+        }
     }
     
-    let statusItem: CycleStatusItem
+    lazy var statusItem: CycleStatusItem = { [unowned self] in
+        $0.clickableDelegate = self
+        return $0
+    }(CycleStatusItem())
     
     var status: CycleStatus = .Stopped {
         didSet {
-            let elapsed: Int!
-            let total: Int!
-            
-            switch status {
-            case .Stopped:
-                elapsed = 0
-                total = 0
-            case .Cycling(let totalSeconds, let elapsedSeconds), .Paused(let totalSeconds, let elapsedSeconds):
-                elapsed = elapsedSeconds
-                total = totalSeconds
-            }
-            
-            statusItem.update(totalSeconds: total, elapsedSeconds: elapsed)
+            updateStatusItem()
         }
     }
 
@@ -47,9 +73,12 @@ class CycleManager {
     }()
 
     init() {
-        statusItem = CycleStatusItem()
-        statusItem.clickableDelegate = self
-        statusItem.update(totalSeconds: 0, elapsedSeconds: 0)
+        updateStatusItem()
+    }
+    
+    private func updateStatusItem() {
+        let (elapsed, total) = status.progress()
+        statusItem.update(totalSeconds: total, elapsedSeconds: elapsed)
     }
 
     @objc private func quit() {
@@ -60,38 +89,40 @@ class CycleManager {
 
 extension CycleManager: CycleStatusItemClickable {
     func cycleStatusItemLeftMouseClicked(statusItem: CycleStatusItem) {
-        let totalSeconds = 25 * 60
-        let elapsedSeconds: Int!
-        
-        switch self.status {
+        // change to next status
+        switch status {
         case .Stopped:
-            elapsedSeconds = 0
-            self.status = .Cycling(totalSeconds: totalSeconds, elapsedSeconds: 0)
-        case let .Cycling(total, elapsed):
-            self.status = .Paused(totalSeconds: total, elapsedSeconds: elapsed)
-            return
-        case let .Paused(total, elapsed):
-            self.status = .Cycling(totalSeconds: total, elapsedSeconds: elapsed)
-            elapsedSeconds = elapsed
+            status.restart(totalSeconds: 25 * 60)
+        case .Cycling:
+            status.pause()
+        case .Paused:
+            status.resume()
         }
         
-        let startDate = NSDate(timeIntervalSinceNow: TimeInterval(-elapsedSeconds))
+        // if status is not changed to cycling, don't need to start timer
+        guard case .Cycling = status else { return }
+        
+        let (alreadyElapsedSeconds, totalSeconds) = status.progress()
+        let startDate = NSDate()
         
         Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] (timer) in
+            // if self was released or status was changed outside, just stop the timer
             guard let `self` = self, case .Cycling = self.status else {
                 timer.invalidate()
                 return
             }
             
-            let interval = Int(NSDate().timeIntervalSince(startDate as Date))
+            // interval is added from two parts, time elapsed in this period and elapsed before this period
+            let interval = Int(NSDate().timeIntervalSince(startDate as Date)) + alreadyElapsedSeconds
             
-            if interval > totalSeconds {
+            // cycling stop detection
+            guard interval <= totalSeconds else {
                 timer.invalidate()
-                self.status = .Stopped
+                self.status.stop()
                 return
             }
             
-            self.status = .Cycling(totalSeconds: totalSeconds, elapsedSeconds: interval)
+            self.status.cyclingTo(seconds: interval)
         }
     }
     

@@ -62,7 +62,9 @@ class CycleManager {
         }
     }
     
-    var cycleInterval = 60 * 25
+    var cycleInterval: Int {
+        return Settings.cycleIntervalInSeconds
+    }
 
     init() {
         updateStatusItem()
@@ -131,6 +133,7 @@ extension CycleManager: CycleStatusItemClickable {
         
         var items = [NSMenuItem]()
         
+        // status related operation
         switch status {
         case .Cycling:
             items.append(NSMenuItem(title: "Pause - Just Click The Icon", action: #selector(pause), keyEquivalent: ""))
@@ -144,11 +147,31 @@ extension CycleManager: CycleStatusItemClickable {
         
         items.append(NSMenuItem.separator())
         
+        // cycle interval settings
+        let cycleIntervalMenuItem = NSMenuItem(title: "Cycle Interval", action: nil, keyEquivalent: "")
+        cycleIntervalMenuItem.submenu = generateCycleIntervalMenu()
+        items.append(cycleIntervalMenuItem)
+        items.append(NSMenuItem.separator())
+        
+        // app level operation
         items.append(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: ""))
         
         for item in items {
             item.target = self
             menu.addItem(item)
+        }
+        
+        return menu
+    }
+    
+    private func generateCycleIntervalMenu() -> NSMenu {
+        let menu = NSMenu()
+        
+        let currentInterval = Settings.cycleIntervalInSeconds / 60
+        for i in stride(from: 5, to: 61, by: 5) {
+            let menuItem = menu.addItem(withTitle: "\(i) minutes", action: #selector(cycleIntervalChanged(menuItem:)), keyEquivalent: "")
+            menuItem.state = currentInterval == i ? .on : .off
+            menuItem.target = self
         }
         
         return menu
@@ -178,6 +201,14 @@ extension CycleManager: CycleStatusItemClickable {
     
     @objc private func quit() {
         NSApplication.shared.terminate(nil)
+    }
+    
+    @objc private func cycleIntervalChanged(menuItem: NSMenuItem) {
+        // get interval from menu item's title, etc "20 minutes"
+        if let minutes = Int(menuItem.title.split(separator: " ")[0]) {
+            Settings.cycleIntervalInSeconds = minutes * 60
+        }
+        
     }
 }
 

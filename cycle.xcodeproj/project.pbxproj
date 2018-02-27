@@ -13,6 +13,7 @@
 		65ABB2261E0D1B9000F7F3B9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 65ABB2251E0D1B9000F7F3B9 /* Assets.xcassets */; };
 		65ABB2291E0D1B9000F7F3B9 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 65ABB2271E0D1B9000F7F3B9 /* MainMenu.xib */; };
 		77D6E15B2043D38000228621 /* CycleStatusItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D6E15A2043D38000228621 /* CycleStatusItem.swift */; };
+		77E99E66204515BC005A4E65 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77E99E65204515BC005A4E65 /* Settings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		65ABB2281E0D1B9000F7F3B9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		65ABB22A1E0D1B9000F7F3B9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		77D6E15A2043D38000228621 /* CycleStatusItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleStatusItem.swift; sourceTree = "<group>"; };
+		77E99E65204515BC005A4E65 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +62,7 @@
 				65724F9C1E110B5C00519DFE /* CycleManager.swift */,
 				65724F9A1E1107F400519DFE /* IconGenerator.swift */,
 				77D6E15A2043D38000228621 /* CycleStatusItem.swift */,
+				77E99E65204515BC005A4E65 /* Settings.swift */,
 				65ABB2251E0D1B9000F7F3B9 /* Assets.xcassets */,
 				65ABB2271E0D1B9000F7F3B9 /* MainMenu.xib */,
 				65ABB22A1E0D1B9000F7F3B9 /* Info.plist */,
@@ -143,6 +146,7 @@
 				77D6E15B2043D38000228621 /* CycleStatusItem.swift in Sources */,
 				65724F9D1E110B5C00519DFE /* CycleManager.swift in Sources */,
 				65ABB2241E0D1B9000F7F3B9 /* AppDelegate.swift in Sources */,
+				77E99E66204515BC005A4E65 /* Settings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

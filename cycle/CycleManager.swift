@@ -61,16 +61,8 @@ class CycleManager {
             updateStatusItem()
         }
     }
-
-    lazy var statusMenu: NSMenu = { [unowned self] in
-        let menu = NSMenu()
-
-        let item = NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "")
-        item.target = self
-
-        menu.addItem(item)
-        return menu
-    }()
+    
+    var cycleInterval = 60 * 25
 
     init() {
         updateStatusItem()
@@ -80,10 +72,6 @@ class CycleManager {
         let (elapsed, total) = status.progress()
         statusItem.update(totalSeconds: total, elapsedSeconds: elapsed)
     }
-
-    @objc private func quit() {
-        NSApplication.shared.terminate(nil)
-    }
 }
 
 
@@ -92,7 +80,7 @@ extension CycleManager: CycleStatusItemClickable {
         // change to next status
         switch status {
         case .Stopped:
-            status.restart(totalSeconds: 25 * 60)
+            status.restart(totalSeconds: cycleInterval)
         case .Cycling:
             status.pause()
         case .Paused:
@@ -102,6 +90,16 @@ extension CycleManager: CycleStatusItemClickable {
         // if status is not changed to cycling, don't need to start timer
         guard case .Cycling = status else { return }
         
+        startCyclingTimer()
+    }
+    
+    func cycleStatusItemRightMouseClicked(statusItem: CycleStatusItem) {
+        statusItem.popUpMenu(menu: generatePopUpMenu())
+    }
+    
+    // MARK: - Cycling Timer
+    
+    private func startCyclingTimer() {
         let (alreadyElapsedSeconds, totalSeconds) = status.progress()
         let startDate = NSDate()
         
@@ -126,7 +124,60 @@ extension CycleManager: CycleStatusItemClickable {
         }
     }
     
-    func cycleStatusItemRightMouseClicked(statusItem: CycleStatusItem) {
-        statusItem.popUpMenu(menu: statusMenu)
+    // MARK: - Pop Up Menu
+    
+    private func generatePopUpMenu() -> NSMenu {
+        let menu = NSMenu()
+        
+        var items = [NSMenuItem]()
+        
+        switch status {
+        case .Cycling:
+            items.append(NSMenuItem(title: "Pause - Just Click The Icon", action: #selector(pause), keyEquivalent: ""))
+            items.append(NSMenuItem(title: "Stop", action: #selector(stop), keyEquivalent: ""))
+        case .Paused:
+            items.append(NSMenuItem(title: "Resume - Just Click The Icon", action: #selector(resume), keyEquivalent: ""))
+            items.append(NSMenuItem(title: "Restart", action: #selector(restart), keyEquivalent: ""))
+        case .Stopped:
+            items.append(NSMenuItem(title: "Start - Just Click The Icon", action: #selector(restart), keyEquivalent: ""))
+        }
+        
+        items.append(NSMenuItem.separator())
+        
+        items.append(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: ""))
+        
+        for item in items {
+            item.target = self
+            menu.addItem(item)
+        }
+        
+        return menu
+    }
+    
+    @objc private func restart() {
+        if case .Cycling = status {
+            return
+        }
+        
+        status.restart(totalSeconds: cycleInterval)
+        startCyclingTimer()
+    }
+    
+    @objc private func stop() {
+        status.stop()
+    }
+    
+    @objc private func pause() {
+        status.pause()
+    }
+    
+    @objc private func resume() {
+        status.resume()
+        startCyclingTimer()
+    }
+    
+    @objc private func quit() {
+        NSApplication.shared.terminate(nil)
     }
 }
+

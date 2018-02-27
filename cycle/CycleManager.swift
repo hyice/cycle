@@ -119,6 +119,7 @@ extension CycleManager: CycleStatusItemClickable {
             guard interval <= totalSeconds else {
                 timer.invalidate()
                 self.status.stop()
+                Notification.notify()
                 return
             }
             
@@ -151,6 +152,12 @@ extension CycleManager: CycleStatusItemClickable {
         let cycleIntervalMenuItem = NSMenuItem(title: "Cycle Interval", action: nil, keyEquivalent: "")
         cycleIntervalMenuItem.submenu = generateCycleIntervalMenu()
         items.append(cycleIntervalMenuItem)
+        
+        // notification type settings
+        let notificationTypeMenuItem = NSMenuItem(title: "Notification Type", action: nil, keyEquivalent: "")
+        notificationTypeMenuItem.submenu = generateNotificationMenu()
+        items.append(notificationTypeMenuItem)
+        
         items.append(NSMenuItem.separator())
         
         // app level operation
@@ -172,6 +179,29 @@ extension CycleManager: CycleStatusItemClickable {
             let menuItem = menu.addItem(withTitle: "\(i) minutes", action: #selector(cycleIntervalChanged(menuItem:)), keyEquivalent: "")
             menuItem.state = currentInterval == i ? .on : .off
             menuItem.target = self
+        }
+        
+        return menu
+    }
+    
+    private func generateNotificationMenu() -> NSMenu {
+        let menu = NSMenu()
+        
+        let items = [
+            ("Sound Only", NotificationType.SoundOnly),
+            ("Alert", NotificationType.Alert),
+            ("Alert And Sound", NotificationType.AlertAndSound),
+            ("Notification Banner", NotificationType.NotificationBanner),
+            ("Banner And Sound", NotificationType.NotificationBannerAndSound),
+            ("Do Not Notify", NotificationType.DoNotNotify)
+        ]
+        
+        for (title, type) in items {
+            let item = menu.addItem(withTitle: title, action: #selector(notificationTypeChanged(menuItem:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = type
+            
+            item.state = type == Settings.notificationType ? .on : .off
         }
         
         return menu
@@ -208,7 +238,11 @@ extension CycleManager: CycleStatusItemClickable {
         if let minutes = Int(menuItem.title.split(separator: " ")[0]) {
             Settings.cycleIntervalInSeconds = minutes * 60
         }
-        
+    }
+    
+    @objc private func notificationTypeChanged(menuItem: NSMenuItem) {
+        let notificationType = menuItem.representedObject as! NotificationType
+        Settings.notificationType = notificationType
     }
 }
 

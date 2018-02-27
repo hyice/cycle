@@ -15,14 +15,5 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var window: NSWindow!
 
     let barItemManager = CycleManager()
-   
-    // MARK: - Delegate -
-    // MARK: NSApplicationDelegate
-    func applicationDidFinishLaunching(_ aNotification: Notification) {
-    }
-
-    func applicationWillTerminate(_ aNotification: Notification) {
-        // Insert code here to tear down your application
-    }
 }
 

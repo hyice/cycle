@@ -2,7 +2,7 @@
 //  CycleStatusItem.swift
 //  cycle
 //
-//  Created by zhangbin on 2018/2/26.
+//  Created by hyice on 2018/2/26.
 //  Copyright © 2018年 hyice. All rights reserved.
 //
 

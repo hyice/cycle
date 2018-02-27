@@ -53,6 +53,7 @@ class CycleManager {
     
     lazy var statusItem: CycleStatusItem = { [unowned self] in
         $0.clickableDelegate = self
+        $0.displayTimer = Settings.displayTimer
         return $0
     }(CycleStatusItem())
     
@@ -116,7 +117,7 @@ extension CycleManager: CycleStatusItemClickable {
             let interval = Int(NSDate().timeIntervalSince(startDate as Date)) + alreadyElapsedSeconds
             
             // cycling stop detection
-            guard interval <= totalSeconds else {
+            guard interval < totalSeconds else {
                 timer.invalidate()
                 self.status.stop()
                 Notification.notify()
@@ -157,6 +158,11 @@ extension CycleManager: CycleStatusItemClickable {
         let notificationTypeMenuItem = NSMenuItem(title: "Notification Type", action: nil, keyEquivalent: "")
         notificationTypeMenuItem.submenu = generateNotificationMenu()
         items.append(notificationTypeMenuItem)
+        
+        // timer control
+        let displayTimerItem = NSMenuItem(title: "Show Timer", action: #selector(timerDisplayModeChanged), keyEquivalent: "")
+        displayTimerItem.state = Settings.displayTimer ? .on : .off
+        items.append(displayTimerItem)
         
         items.append(NSMenuItem.separator())
         
@@ -243,6 +249,16 @@ extension CycleManager: CycleStatusItemClickable {
     @objc private func notificationTypeChanged(menuItem: NSMenuItem) {
         let notificationType = menuItem.representedObject as! NotificationType
         Settings.notificationType = notificationType
+    }
+    
+    @objc private func timerDisplayModeChanged() {
+        let needDisplay = !Settings.displayTimer
+        
+        Settings.displayTimer = needDisplay
+        statusItem.displayTimer = needDisplay
+        
+        let (elapsed, total) = status.progress()
+        statusItem.update(totalSeconds: total, elapsedSeconds: elapsed)
     }
 }
 

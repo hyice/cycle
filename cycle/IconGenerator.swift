@@ -10,7 +10,7 @@ import Cocoa
 
 struct IconGenerator {
     
-    static func statusBarIcon(withProgress progress: Float) -> NSImage {
+    static func statusBarIcon(withProgress progress: Float, eyesOpened: Bool = true) -> NSImage {
         let thickness = NSStatusBar.system.thickness
         let size = NSSize(width: thickness, height: thickness)
         let image = NSImage(size: size)
@@ -23,7 +23,9 @@ struct IconGenerator {
         // progressPath
         drawCyclePath(progress: progress, color: .black)
 
-        drawCenterPoint(color: .lightGray)
+        if eyesOpened {
+            drawCenterPoint(color: .lightGray)
+        }
 
         image.unlockFocus()
         

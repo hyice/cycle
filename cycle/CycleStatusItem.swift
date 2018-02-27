@@ -16,8 +16,15 @@ extension CycleStatusItem {
     func update(totalSeconds total: Int, elapsedSeconds elapsed: Int) {
         let progress = total == 0 || elapsed == total ? 0 : Float(elapsed) / Float(total)
         
-        icon = IconGenerator.statusBarIcon(withProgress: progress)
-        text = timeString(fromSeconds: total - elapsed)
+        let openEyes = displayTimer || elapsed % 2 == 0
+        
+        icon = IconGenerator.statusBarIcon(withProgress: progress, eyesOpened: openEyes)
+        
+        if displayTimer {
+            text = timeString(fromSeconds: total - elapsed)
+        } else {
+            text = ""
+        }
     }
     
     private func timeString(fromSeconds seconds: Int) -> String {
@@ -68,6 +75,8 @@ class CycleStatusItem {
             statusItem.button?.title = newValue
         }
     }
+    
+    var displayTimer = true
     
     weak var clickableDelegate: CycleStatusItemClickable?
     
